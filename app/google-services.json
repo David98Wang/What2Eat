@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "202526470015",
+    "firebase_url": "https://myproject-46ea9.firebaseio.com",
+    "project_id": "myproject-46ea9",
+    "storage_bucket": "myproject-46ea9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:202526470015:android:f299778624dfb8b0",
+        "android_client_info": {
+          "package_name": "eng.waterloo.what2eat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "202526470015-o2b2mfk4vbhc5ov2lrserp66tb536fj3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBB9WzTjRsfP7hA-on7mLga_MIY-6x44yI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
