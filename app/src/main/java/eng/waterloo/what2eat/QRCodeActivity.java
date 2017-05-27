@@ -84,7 +84,7 @@ public class QRCodeActivity extends Activity {
         findViewById(R.id.btnFinish).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent next = new Intent(QRCodeActivity.this,ResultActivity.class);//Change to real activity
+                Intent next = new Intent(QRCodeActivity.this,VoteRestaurants_Activity.class);//Change to real activity
                 startActivity(next);
             }
         });
