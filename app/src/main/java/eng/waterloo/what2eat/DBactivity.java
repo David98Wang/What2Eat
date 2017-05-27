@@ -26,23 +26,22 @@ import static android.R.attr.key;
   map: kenzo
   key: 4
    */
-public class DBactivity extends AppCompatActivity {
+public class DBactivity {
 
     DatabaseReference root = FirebaseDatabase.getInstance().getReference();
 
     HashMap<String, String> map = new LinkedHashMap<>();
 
-    String largestVotingRestaurant;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dbactivity);
-        //  addToDB("kenzo");
-        getHighest();
+    public String largestVotingRestaurant ;
 
+
+    public DBactivity(){
+
+        //getHighest();
+        //System.out.println("in constructor");
     }
 
-    public void getHighest() {
+    public void  getHighest() {
 
         root.child("restaurants").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -71,6 +70,7 @@ public class DBactivity extends AppCompatActivity {
 
                         }
 
+
                     }
 
                     @Override
@@ -78,6 +78,7 @@ public class DBactivity extends AppCompatActivity {
 
                     }
                 }
+
         );
 
 
@@ -115,6 +116,11 @@ public void output(){
 
             }
         });
+    }
+
+    public String get_result(){
+        System.out.println("getter out "+largestVotingRestaurant);
+        return largestVotingRestaurant;
     }
 
 
