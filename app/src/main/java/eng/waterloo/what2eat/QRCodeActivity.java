@@ -1,14 +1,18 @@
 package eng.waterloo.what2eat;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -26,10 +30,10 @@ import static android.R.id.content;
  */
 
 public class QRCodeActivity extends Activity {
+    public static int NumberOfPeople = -1;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode);
-
         addKeyListener();
     }
 
@@ -56,7 +60,6 @@ public class QRCodeActivity extends Activity {
         ((ImageView) findViewById(R.id.imgQRCode)).setImageBitmap(bmp);
 
     }
-
     protected void addKeyListener() {
         findViewById(R.id.btnJoinGroup).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -75,28 +78,52 @@ public class QRCodeActivity extends Activity {
         });
         findViewById(R.id.btnNewGroup).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v){
+                Log.d("DEBUG","ASDFFD");
+
+                popUp();
                 displayQRCode();
             }
         });
     }
+    public void popUp(){
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Number of People");
+        alert.setMessage("Please enter number of people in your Group");
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                QRCodeActivity.NumberOfPeople =  Integer.valueOf(input.getText().toString());
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        alert.show();
+    }
     public static Bitmap encodeToQrCode(String text, int width, int height){
         QRCodeWriter writer = new QRCodeWriter();
         BitMatrix matrix = null;
+
         try {
-            matrix = writer.encode(text, BarcodeFormat.QR_CODE, 100, 100);
+            matrix = writer.encode(text, BarcodeFormat.QR_CODE, 1000, 1000);
         } catch (WriterException ex) {
             ex.printStackTrace();
         }
-        int[][] pix  = {{0,0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1,1}};
         Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        //Log.d("ERROR123",String.valueOf(bmp.getWidth()));
-        for (int x = 0; x < 100; x++){
-            for (int y = 0; y < 100; y++){
-                for(int a =0;a<10;a++)
-                    for(int b=0;b<10;b++) {
-                        Log.d("ERROR123",String.valueOf(y*10+b));
-                        bmp.setPixel(x * 10 + a, y * 10 + b, matrix.get(x, y) ? Color.BLACK : Color.WHITE);
-                    }
+        Log.d("ERROR123",String.valueOf(bmp.getWidth()));
+        for (int x = 0; x < 1000; x++){
+            for (int y = 0; y < 1000; y++){
+                        bmp.setPixel(x , y , matrix.get(x, y) ? Color.BLACK : Color.WHITE);
             }
         }
         return bmp;
