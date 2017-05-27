@@ -42,13 +42,64 @@ public class DBactivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dbactivity);
-        //  addToDB("kenzo");
-        getHighest();
-        test();
+        //addToDB("abc","restaurant");
+        //  getHighest();
+        //DBActivityListener();
+        addGroup("new2", "restaurant");
+    }
+
+    public void addGroup(final String groupID, final String restaurantName) {
+        root.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean exists = false;
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+                    if (d.getKey().equals(groupID)) { //if the group ID exists
+                        int votes = Integer.parseInt(d.child(restaurantName).getValue().toString());
+                        root.child(groupID).child(restaurantName).setValue(votes+1);
+                        break;
+                    }else{
+                        /* add to db */
+                        root.child(groupID).child(restaurantName).setValue("1");
+                    }
+                }
+
+
+//                for (DataSnapshot d : dataSnapshot.getChildren()) {
+//                    if (d.hasChild(groupID)) {
+//                        for (DataSnapshot m : d.getChildren()) {
+//                            String key = m.getKey().toString();
+//                            String value = m.getValue().toString();
+//                            break;
+//                        }
+//
+//                    }
+//                     if(groupID.equals(d.getKey().toString())){
+//
+//                    int votes = Integer.parseInt(d.getValue().toString());
+//
+//                      root.child(groupID).child(restaurantName).setValue(votes+1);
+//                    exists = true;
+//                    break;
+//                     }
+//                          if (!exists) {
+//                            root.child(groupID).child(restaurantName).setValue("1");
+//                      }
+//                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println(databaseError.getMessage());
+            }
+        });
+
 
     }
 
-    public void test() {
+
+    public void DBActivityListener() {
         root.child("restaurants").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
