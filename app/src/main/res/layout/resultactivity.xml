@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="eng.waterloo.what2eat.MainActivity">
+    tools:context="eng.waterloo.what2eat.ResultActivity">
 
     <TextView
         android:id="@+id/resultTV"
@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
         android:text="Final Result"
+        android:textColor="@android:color/background_dark"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.457"
@@ -28,7 +29,8 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:text="Button"
+        android:onClick="sendMessage"
+        android:text="Reurn to Main Menu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.971"
         app:layout_constraintLeft_toLeftOf="parent"
