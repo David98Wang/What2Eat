@@ -45,23 +45,43 @@ public class DBactivity extends AppCompatActivity {
         //addToDB("abc","restaurant");
         //  getHighest();
         //DBActivityListener();
-        addGroup("new2", "restaurant");
+        addGroup("new5", "abc");
     }
 
     public void addGroup(final String groupID, final String restaurantName) {
         root.addListenerForSingleValueEvent(new ValueEventListener() {
+
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boolean exists = false;
+                boolean res = false;
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     if (d.getKey().equals(groupID)) { //if the group ID exists
-                        int votes = Integer.parseInt(d.child(restaurantName).getValue().toString());
-                        root.child(groupID).child(restaurantName).setValue(votes+1);
-                        break;
-                    }else{
-                        /* add to db */
-                        root.child(groupID).child(restaurantName).setValue("1");
+                        for (DataSnapshot m : dataSnapshot.child(groupID).getChildren()) { //loop through the items in group ID. search all keys
+//                            System.out.println(m.getKey().toString());
+                            if (m.getKey().equals(restaurantName)) { //if keys match
+
+                                int votes = Integer.parseInt(d.child(restaurantName).getValue().toString());
+                                root.child(groupID).child(restaurantName).setValue(votes + 1);
+                                exists = true; //both group ID and restaurants exist
+                                break;
+                            } else {
+                                continue;
+                            }
+                        }
+                        res = true; //only group ID exist, restaurant doesn't exist
                     }
+                }
+                if (!res) {
+                        /* add to db */
+                    System.out.println("this group doesn't exist. Added a new group and a new restaurant");
+                    root.child(groupID).child(restaurantName).setValue("1");
+
+                }
+                if (!exists) {
+                    System.out.println("this restaurant doesn't exist. Added to associated group ID ");
+                    root.child(groupID).child(restaurantName).setValue("1");
                 }
 
 
