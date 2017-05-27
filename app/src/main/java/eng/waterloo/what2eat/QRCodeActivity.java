@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.util.Random;
 
@@ -33,7 +34,9 @@ public class QRCodeActivity extends Activity {
     }
 
     protected void displayQRCode() {
-        Random rand = new Random();
+        Bitmap bmp = encodeToQrCode(randomString(),1000,1000);
+
+        /*Random rand = new Random();
         ImageView imgQRCode = (ImageView) findViewById(R.id.imgQRCode);
         LinearLayout layoutMain = (LinearLayout) findViewById(R.id.layoutMain);
         int length = 600;
@@ -49,7 +52,7 @@ public class QRCodeActivity extends Activity {
                     for (int b = 0; b < blockPixel; b++)
                         bmp.setPixel(x + a, y + b, res ? Color.BLACK : Color.WHITE);
             }
-        }
+        }*/
         ((ImageView) findViewById(R.id.imgQRCode)).setImageBitmap(bmp);
 
     }
@@ -76,7 +79,39 @@ public class QRCodeActivity extends Activity {
             }
         });
     }
-
+    public static Bitmap encodeToQrCode(String text, int width, int height){
+        QRCodeWriter writer = new QRCodeWriter();
+        BitMatrix matrix = null;
+        try {
+            matrix = writer.encode(text, BarcodeFormat.QR_CODE, 100, 100);
+        } catch (WriterException ex) {
+            ex.printStackTrace();
+        }
+        int[][] pix  = {{0,0,0,0,0,0,0,0,0,0},{1,1,1,1,1,1,1,1,1,1}};
+        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        //Log.d("ERROR123",String.valueOf(bmp.getWidth()));
+        for (int x = 0; x < 100; x++){
+            for (int y = 0; y < 100; y++){
+                for(int a =0;a<10;a++)
+                    for(int b=0;b<10;b++) {
+                        Log.d("ERROR123",String.valueOf(y*10+b));
+                        bmp.setPixel(x * 10 + a, y * 10 + b, matrix.get(x, y) ? Color.BLACK : Color.WHITE);
+                    }
+            }
+        }
+        return bmp;
+    }
+    public static String randomString() {
+        Random generator = new Random();
+        StringBuilder randomStringBuilder = new StringBuilder();
+        int randomLength = 10;
+        char tempChar;
+        for (int i = 0; i < randomLength; i++){
+            tempChar = (char) (generator.nextInt(96) + 32);
+            randomStringBuilder.append(tempChar);
+        }
+        return randomStringBuilder.toString();
+    }
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
