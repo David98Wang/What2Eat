@@ -1,6 +1,7 @@
 package eng.waterloo.what2eat;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.hardware.SensorListener;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +44,7 @@ import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 public class VoteRestaurants_Activity extends AppCompatActivity {
 
     ArrayList<RestaurantObject> RestaurantList;
+    DatabaseReference root = FirebaseDatabase.getInstance().getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +73,7 @@ public class VoteRestaurants_Activity extends AppCompatActivity {
 
                         JSONObject c = sys.getJSONObject(i);
                         String name = c.getString("name");
-                        //RestaurantList.add(new RestaurantObject(name));
+                        RestaurantList.add(new RestaurantObject(name));
                         Log.d("name", name);
 
                         //Add to radio group
@@ -103,8 +110,88 @@ public class VoteRestaurants_Activity extends AppCompatActivity {
             public void onClick(View v) {
                 int radioButtonID = radioGroup.getCheckedRadioButtonId();
                 String selectedName = RestaurantList.get(radioButtonID).getName();
-                Log.d("selected radio", selectedName);
+                addGroup(QRCodeActivity.groupName, selectedName);
+                Log.d("selected radio", Integer.toString(radioButtonID));
+                Intent t = new Intent(VoteRestaurants_Activity.this,ResultActivity.class);
+                startActivity(t);
             }
         });
+        Button backButton = (Button) findViewById(R.id.back);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent t = new Intent(VoteRestaurants_Activity.this,QRCodeActivity.class);
+                startActivity(t);
+            }
+        });
+    }
+
+    public void addGroup(final String groupID, final String restaurantName) {
+        root.addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean exists = false;
+                boolean res = false;
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+                    if (d.getKey().equals(groupID)) { //if the group ID exists
+                        for (DataSnapshot m : dataSnapshot.child(groupID).getChildren()) { //loop through the items in group ID. search all keys
+//                            System.out.println(m.getKey().toString());
+                            if (m.getKey().equals(restaurantName)) { //if keys match
+
+                                int votes = Integer.parseInt(d.child(restaurantName).getValue().toString());
+                                root.child(groupID).child(restaurantName).setValue(votes + 1);
+                                exists = true; //both group ID and restaurants exist
+                                break;
+                            } else {
+                                continue;
+                            }
+                        }
+                        res = true; //only group ID exist, restaurant doesn't exist
+                    }
+                }
+                if (!res) {
+                        /* add to db */
+                    System.out.println("this group doesn't exist. Added a new group and a new restaurant");
+                    root.child(groupID).child(restaurantName).setValue("1");
+
+                }
+                if (!exists) {
+                    System.out.println("this restaurant doesn't exist. Added to associated group ID ");
+                    root.child(groupID).child(restaurantName).setValue("1");
+                }
+
+
+//                for (DataSnapshot d : dataSnapshot.getChildren()) {
+//                    if (d.hasChild(groupID)) {
+//                        for (DataSnapshot m : d.getChildren()) {
+//                            String key = m.getKey().toString();
+//                            String value = m.getValue().toString();
+//                            break;
+//                        }
+//
+//                    }
+//                     if(groupID.equals(d.getKey().toString())){
+//
+//                    int votes = Integer.parseInt(d.getValue().toString());
+//
+//                      root.child(groupID).child(restaurantName).setValue(votes+1);
+//                    exists = true;
+//                    break;
+//                     }
+//                          if (!exists) {
+//                            root.child(groupID).child(restaurantName).setValue("1");
+//                      }
+//                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println(databaseError.getMessage());
+            }
+        });
+
+
     }
 }

@@ -31,12 +31,14 @@ import static android.R.id.content;
  */
 
 public class QRCodeActivity extends Activity {
-    public static int NumberOfPeople = -1;
+    public static int NumberOfPeople = 1;
     public static String groupName;
     ImageView imgQRCode;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode);
+        //groupName = randomString();
+        //groupName = QRCodeActivity.groupName;
         imgQRCode = (ImageView)findViewById(R.id.imgQRCode);
         addKeyListener();
     }
@@ -135,20 +137,25 @@ public class QRCodeActivity extends Activity {
     public static String randomString() {
         Random generator = new Random();
         StringBuilder randomStringBuilder = new StringBuilder();
-        int randomLength = 10;
+        int randomLength = 100;
         char tempChar;
         for (int i = 0; i < randomLength; i++){
-            tempChar = (char) (generator.nextInt(96) + 32);
+            tempChar = (char) (generator.nextInt(26) + 'a');
             randomStringBuilder.append(tempChar);
         }
-        return randomStringBuilder.toString();
+        String ret = randomStringBuilder.toString();
+        ret = ret+ String.valueOf(NumberOfPeople);
+        return ret;
     }
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
-                String contents = intent.getStringExtra("SCAN_RESULT");
+                QRCodeActivity.groupName = intent.getStringExtra("SCAN_RESULT");
+                NumberOfPeople = Integer.valueOf(groupName.charAt(groupName.length()-1));
+                System.out.println("jqpowjfpqow"+NumberOfPeople);
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Log.d("DEBUG", contents);
+                Log.d("DEBUG", groupName);
+                popUp();
             } else if (resultCode == RESULT_CANCELED) {
                 // Handle cancel
             }
