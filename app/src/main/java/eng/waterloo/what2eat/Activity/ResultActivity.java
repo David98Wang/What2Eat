@@ -1,4 +1,4 @@
-package eng.waterloo.what2eat;
+package eng.waterloo.what2eat.Activity;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -6,33 +6,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import android.app.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-
-import static eng.waterloo.what2eat.DBactivity.*;
+import eng.waterloo.what2eat.R;
 
 public class ResultActivity extends Activity {
 
@@ -40,11 +26,11 @@ public class ResultActivity extends Activity {
     HashMap<String, String> map = new LinkedHashMap<>();
 
     public static String largestVotingRestaurant;
-//    public static int peopleVoted = 0;
+    //    public static int peopleVoted = 0;
 //    public static int currentVoted = 0;
     public static TextView displayTV; // text view to display final result
     public static Button backToMenuButton; // text view to display final result
-
+    public static int votedPpl;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,9 +46,32 @@ public class ResultActivity extends Activity {
         displayTV.setText("Getting Results...");
 
         backToMenuButton = (Button) findViewById(R.id.returnMenuButton);
-        backToMenuButton.setClickable(true);
+        backToMenuButton.setClickable(false);
+        //getHighest();
+
         DBEventListener();
-        getHighest();
+
+//        new Thread(new Runnable() {
+//            public void run() {
+//                while(true) {
+//                    if (checkVotes(map)) {
+//                        try {
+//                            Thread.sleep(100);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                        System.out.println("largest voting restaurant: " + largestVotingRestaurant);
+//                        displayTV.post(new Runnable(){
+//                            public void run() {
+//                                displayTV.setText(ResultActivity.largestVotingRestaurant);
+//                            }
+//                        });
+//                        backToMenuButton.setClickable(true);
+//                    }
+//                }
+//
+//            }
+//        }).start();
 
 //        while (peopleVoted != 6){
 //            peopleVoted = 0;
@@ -88,10 +97,43 @@ public class ResultActivity extends Activity {
     //******************DATA BASE OPERATIONS*********************//
 
     public void DBEventListener() {
-        root.child("restaurants").addValueEventListener(new ValueEventListener() {
+        root.child(QRCodeActivity.groupName).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
             /*perform w/e action everytime the database is modified*/
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+                    map.put(d.getKey().toString(), d.getValue().toString());
+
+                }
+                //output();
+                        /* put ratings in an array and find out the biggest rating */
+                int[] totalEle = new int[map.size()];
+                int i = 0;
+                for (String c : map.keySet()) {
+                    totalEle[i] = Integer.parseInt(map.get(c));
+                    i++;
+                }
+                Arrays.sort(totalEle);
+                if(map.size()==0)return;
+                String biggest = "";
+                for(String c:map.keySet()){
+                    if(biggest=="")
+                        biggest=new String(c);
+                    if(Integer.valueOf(map.get(biggest))<Integer.valueOf(map.get(c)))
+                        biggest=new String(c);
+                    else if(Integer.valueOf(map.get(biggest))<Integer.valueOf(map.get(c))&&biggest.compareTo(c)>0)
+                        biggest=new String(c);
+                }
+
+                /*for (String c : map.keySet()) {
+                    if (Integer.parseInt(map.get(c)) == biggest) {
+                        ResultActivity.largestVotingRestaurant = new String(c);
+                        break;
+                    }
+                }*/
+                ResultActivity.largestVotingRestaurant = biggest;
+                System.out.println("end of get result "+ResultActivity.largestVotingRestaurant);
+
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     map.put(d.getKey().toString(), d.getValue().toString());
 
@@ -103,7 +145,7 @@ public class ResultActivity extends Activity {
 
                 if (checkVotes(map)) {
                     System.out.println("largest voting restaurant: " + largestVotingRestaurant);
-                    displayTV.setText(largestVotingRestaurant);
+                    displayTV.setText(ResultActivity.largestVotingRestaurant);
                     backToMenuButton.setClickable(true);
                 }
             }
@@ -118,7 +160,7 @@ public class ResultActivity extends Activity {
 
     public void getHighest() {
 
-        root.child("restaurants").addListenerForSingleValueEvent(
+        root.child(QRCodeActivity.groupName).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -137,15 +179,16 @@ public class ResultActivity extends Activity {
                             i++;
                         }
                         Arrays.sort(totalEle);
-                        int biggest = totalEle[map.size() - 1];
+                        if(map.size()==0)return;
+                        int biggest = Math.max(0,totalEle[Math.max(0,map.size() - 1)]);
 
                         for (String c : map.keySet()) {
                             if (Integer.parseInt(map.get(c)) == biggest) {
-                                largestVotingRestaurant = c;
+                                ResultActivity.largestVotingRestaurant = new String(c);
                                 break;
                             }
                         }
-
+                        System.out.println("end of get result "+ResultActivity.largestVotingRestaurant);
                     }
 
                     @Override
@@ -171,8 +214,8 @@ public class ResultActivity extends Activity {
 
         }
         System.out.println("total votes: " + totalVotes);
-
-        if (totalVotes == 10) {
+        System.out.println("QRCODEasdf"+QRCodeActivity.NumberOfPeople);
+        if (totalVotes == QRCodeActivity.NumberOfPeople) {
             return true;
         }
         return false;
@@ -188,19 +231,19 @@ public class ResultActivity extends Activity {
 
     public void addToDB(final String restaurant) {
 
-        root.child("restaurants").addListenerForSingleValueEvent(new ValueEventListener() {
+        root.child(QRCodeActivity.groupName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boolean exists = false;
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     if (restaurant.equals(d.getKey().toString())) {
                         int votes = Integer.parseInt(d.getValue().toString());
-                        root.child("restaurants").child(d.getKey()).setValue(votes + 1);
+                        root.child(QRCodeActivity.groupName).child(d.getKey()).setValue(votes + 1);
                         exists = true;
                         break;
                     }
                     if (!exists) {
-                        root.child("restaurants").child(restaurant).setValue("1");
+                        root.child(QRCodeActivity.groupName).child(restaurant).setValue("1");
                     }
 
                 }

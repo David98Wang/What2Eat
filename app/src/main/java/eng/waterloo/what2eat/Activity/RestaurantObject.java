@@ -1,4 +1,4 @@
-package eng.waterloo.what2eat;
+package eng.waterloo.what2eat.Activity;
 
 /**
  * Created by HP-PC on 2/18/2017.
